@@ -1,0 +1,8 @@
+This is a quick chrome user script (might work in FF too, YMMV) for improving appshopper, the iOS price tracker (appshopper.com).
+
+It makes use of this cool plugin for supporting cross site ajax to fetch data from apple: https://github.com/jamespadolsey/jQuery-Plugins/tree/master/cross-domain-ajax/
+
+Features:
+  - Automatically filter out all apps with < 4.0 rating, and/or < 5 reviews.
+  - Automatically prefetch 5 pages at a time when browsing. Update pagination controls to move 5 pages at a time.
+  - Automatically pull in any in-app purchases from apple and display them in line.
