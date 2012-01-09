@@ -1,4 +1,7 @@
 // ==UserScript==
+// @name           AppShopperSmarter
+// @description    Extends AppShopper to automatically filter out apps with < 5 ratings or a < 4 cumulative rating. Also pulls in in-app purchases and loads five pages at a time.
+// @version        1.1.0
 // @match http://appshopper.com/*
 // @exclude http://appshopper.com/search/*
 // ==/UserScript==
@@ -16,7 +19,7 @@ function thescript() {
     //add formatting for inapp purchases.
     $('head').append('<style>.inapp { border: 1px solid #FBC7C6; padding: 4px; margin-bottom: 2px; background: #FDDFDE; -webkit-border-radius: 4px; }</style>');
     
-    //redefine ajax to use YQL as a proxy for cross site
+    //redefine ajax to use YQL as a proxy for cross domain urls
     //snippet from: https://github.com/jamespadolsey/jQuery-Plugins/tree/master/cross-domain-ajax/
     jQuery.ajax = (function(_ajax){
 
@@ -97,6 +100,8 @@ function thescript() {
             });
         }   
     }
+    
+    // Recursively get pages and add them to the list of apps until reaching the desired number
     function getNextPage(currpage, end) {
         $.ajax({
           url: currpage,
@@ -115,24 +120,44 @@ function thescript() {
         });
     }
 
+    // Remove all apps that have < 5 ratings or < 4 overall rating. Pull in any in-app purchases.
     function trimFat() {
         var apps = $('ul.appdetails li');
+        var minrating = localStorage.getItem('minrating');
+        var minreviews = localStorage.getItem('minreviews');
         for(var i=0; i<apps.length; i++) {
-        	var item = $(apps[i]);
-        	var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
-        	var score=ratingInfo.substring(0,4);
-        	var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
-        	if (  (parseFloat(score) < 4)  || (!parseFloat(score)) || (ratingCount<5) ) {
-        	  item.detach();
-        	}
-        	else {
-        	    var appid=item.attr('id').substring(4);
+            var item = $(apps[i]);
+            var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
+            var score=ratingInfo.substring(0,4);
+            var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
+            if (  (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
+              item.detach();
+            }
+            else {
+                var appid=item.attr('id').substring(4);
                 showpurchases( appid, item.children('.hovertip')[0] );
-        	}
+            }
         }
+    }
+
+    function makeFilter() {
+        $('.toolbar').after('<div id="enhanced_filter"><h3>AppShopperSmarter Settings: </h3><label for="min_reviews">Minimum # Reviews:</label><input type="text" id="min_reviews" value="'+localStorage.getItem('minreviews')+'" /><label for="min_rating">Minimum Rating:</label><select id="min_rating"><option value="5">5 Stars</option><option value="4.5">4.5 Stars</option><option value="4">4 Stars</option><option value="3.5">3.5 Stars</option><option value="3">3 Stars</option><option value="2.5">2.5 Stars</option><option value="2">2 Stars</option><option value="1.5">1.5 Stars</option><option value="1">1 Stars</option><option value="0">None</option></select><button type="submit" id="changefilter">Filter</button></div>');
+        $('#enhanced_filter option[value="'+localStorage.getItem('minrating')+'"]').attr("selected", "selected");
+        $('#changefilter').click(function(){
+            localStorage.setItem("minrating", $('#min_rating').attr('value'));
+            localStorage.setItem("minreviews", $('#min_reviews').attr('value'));
+            window.location.reload();
+        });
+         
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em}</style>');
+        
+        
     }
     
     function main() {
+        localStorage.setItem('minrating',localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4);
+        localStorage.setItem('minreviews',localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8);
+        makeFilter();
         var pagelength = window.location.href.split("").reverse().join("").indexOf('/');
         var pagenum = window.location.href.substring(window.location.href.length-pagelength);
         pagenum = parseFloat(pagenum);
