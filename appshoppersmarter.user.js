@@ -115,6 +115,7 @@ function thescript() {
             }
             else {
                 trimFat();
+                $('h3.hovertip').after('<button class="muter"></button>');
             }
           }
         });
@@ -130,8 +131,8 @@ function thescript() {
             var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
             var score=ratingInfo.substring(0,4);
             var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
-            if (  (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
-              item.detach();
+            if (  localStorage.getItem('mute' + item.attr('id')) || (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
+              item.hide();
             }
             else {
                 var appid=item.attr('id').substring(4);
@@ -140,7 +141,7 @@ function thescript() {
         }
     }
 
-    function makeFilter() {
+    function makeControls() {
         $('.toolbar').after('<div id="enhanced_filter"><h3>AppShopperSmarter Settings: </h3><label for="min_reviews">Minimum # Reviews:</label><input type="text" id="min_reviews" value="'+localStorage.getItem('minreviews')+'" /><label for="min_rating">Minimum Rating:</label><select id="min_rating"><option value="5">5 Stars</option><option value="4.5">4.5 Stars</option><option value="4">4 Stars</option><option value="3.5">3.5 Stars</option><option value="3">3 Stars</option><option value="2.5">2.5 Stars</option><option value="2">2 Stars</option><option value="1.5">1.5 Stars</option><option value="1">1 Stars</option><option value="0">None</option></select><button type="submit" id="changefilter">Filter</button></div>');
         $('#enhanced_filter option[value="'+localStorage.getItem('minrating')+'"]').attr("selected", "selected");
         $('#changefilter').click(function(){
@@ -148,16 +149,19 @@ function thescript() {
             localStorage.setItem("minreviews", $('#min_reviews').attr('value'));
             window.location.reload();
         });
-         
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em}</style>');
-        
-        
+        $('.muter').live('click',function(e){
+            var app = $(this).closest('li');
+            console.log(app);
+            localStorage.setItem('mute' + app.attr('id'));
+            app.fadeOut();
+        });
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em}.muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #ddd; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .content ul.appdetails li{overflow:visible}'); 
     }
     
     function main() {
         localStorage.setItem('minrating',localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4);
         localStorage.setItem('minreviews',localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8);
-        makeFilter();
+        makeControls();
         var pagelength = window.location.href.split("").reverse().join("").indexOf('/');
         var pagenum = window.location.href.substring(window.location.href.length-pagelength);
         pagenum = parseFloat(pagenum);
