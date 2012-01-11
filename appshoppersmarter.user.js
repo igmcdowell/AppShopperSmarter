@@ -108,37 +108,15 @@ function thescript() {
           success: function(data){
             var page = $(data);
             var apps = page.find('ul.appdetails li');
+            apps.trimFat(); 
+            apps.makeMuters();
             $('ul.appdetails').append(apps);
             if ( currpage < end ) {
                 currpage++;
                 getNextPage(currpage, end);
             }
-            else {
-                trimFat();
-                $('h3.hovertip').after('<button class="muter"></button>');
-            }
           }
         });
-    }
-
-    // Remove all apps that have < 5 ratings or < 4 overall rating. Pull in any in-app purchases.
-    function trimFat() {
-        var apps = $('ul.appdetails li');
-        var minrating = localStorage.getItem('minrating');
-        var minreviews = localStorage.getItem('minreviews');
-        for(var i=0; i<apps.length; i++) {
-            var item = $(apps[i]);
-            var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
-            var score=ratingInfo.substring(0,4);
-            var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
-            if (  localStorage.getItem('mute' + item.attr('id')) || (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
-              item.hide();
-            }
-            else {
-                var appid=item.attr('id').substring(4);
-                showpurchases( appid, item.children('.hovertip')[0] );
-            }
-        }
     }
 
     function makeControls() {
@@ -155,10 +133,34 @@ function thescript() {
             localStorage.setItem('mute' + app.attr('id'));
             app.fadeOut();
         });
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em}.muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #ddd; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .content ul.appdetails li{overflow:visible}'); 
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible}'); 
     }
     
     function main() {
+        
+        (function( $ ) {
+          $.fn.trimFat = function() {
+              var minrating = localStorage.getItem('minrating');
+              var minreviews = localStorage.getItem('minreviews');
+              for(var i=0; i<this.length; i++) {
+                  var item = $(this[i]);
+                  var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
+                  var score=ratingInfo.substring(0,4);
+                  var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
+                  if (  localStorage.getItem('mute' + item.attr('id')) || (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
+                    item.hide();
+                  }
+                  else {
+                      var appid=item.attr('id').substring(4);
+                      showpurchases( appid, item.children('.hovertip')[0] );
+                  }
+              }
+          };
+          $.fn.makeMuters = function() {
+              this.find('h3.hovertip').after('<button class="muter"></button>');
+          }
+        })( jQuery );
+        
         localStorage.setItem('minrating',localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4);
         localStorage.setItem('minreviews',localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8);
         makeControls();
@@ -168,6 +170,8 @@ function thescript() {
         if (!pagelength) {
             pagenum = 1
         }
+        $('ul.appdetails li').trimFat();
+        $('ul.appdetails li').makeMuters();
         getNextPage(pagenum+1,pagenum+4);
         var navs = $('div.pages a');
         if (navs.length > 1) {
