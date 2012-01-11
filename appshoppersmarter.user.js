@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AppShopperSmarter
-// @description    Extends AppShopper to automatically filter out apps with < 5 ratings or a < 4 cumulative rating. Also pulls in in-app purchases and loads five pages at a time.
-// @version        1.1.0
+// @description    Extends AppShopper to automatically filter out apps based on minimum number ratings and minimum average ratings. Also pulls in in-app purchases and loads five pages at a time, plus supports hiding apps indefinitely.
+// @version        1.2.0
 // @match http://appshopper.com/*
 // @exclude http://appshopper.com/search/*
 // ==/UserScript==
@@ -127,16 +127,15 @@ function thescript() {
             localStorage.setItem("minreviews", $('#min_reviews').attr('value'));
             window.location.reload();
         });
-        $('.muter').live('click',function(e){
-            var app = $(this).closest('li');
-            console.log(app);
-            localStorage.setItem('mute' + app.attr('id'));
-            app.fadeOut();
-        });
         $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible}'); 
     }
     
     function main() {
+        $('ul.appdetails').delegate('.muter','click',function(e){
+            var app = $(this).closest('li');
+            localStorage.setItem('mute' + app.attr('id'), 'true');
+            app.fadeOut();
+        });
         
         (function( $ ) {
           $.fn.trimFat = function() {
@@ -157,7 +156,7 @@ function thescript() {
               }
           };
           $.fn.makeMuters = function() {
-              this.find('h3.hovertip').after('<button class="muter"></button>');
+              this.find('h3.hovertip').after('<button class="muter" title="Don\'t show this app again"></button>');
           }
         })( jQuery );
         
