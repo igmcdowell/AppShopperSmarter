@@ -21,7 +21,7 @@ function thescript() {
     
     //redefine ajax to use YQL as a proxy for cross domain urls
     //snippet from: https://github.com/jamespadolsey/jQuery-Plugins/tree/master/cross-domain-ajax/
-    jQuery.ajax = (function(_ajax){
+    jQuery.rajax = (function(_ajax){
 
         var protocol = location.protocol,
             hostname = location.hostname,
@@ -89,7 +89,7 @@ function thescript() {
     function showpurchases(appid, header) {
         if(  !$(header).next('dl').children('.inapp').length  ) {
             var targetref = 'http://itunes.apple.com/us/app/id' + appid;
-            jQuery.get(targetref, function(data) {
+            jQuery.rajax(targetref, function(data) {
                    var page = $(data.responseText);
                    var purchases = page.find('.in-app-purchases').children('ol').children('li');
                    var purchaselist = '';
