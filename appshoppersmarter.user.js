@@ -19,88 +19,8 @@ function thescript() {
     //add formatting for inapp purchases.
     $('head').append('<style>.inapp { border: 1px solid #FBC7C6; padding: 4px; margin-bottom: 2px; background: #FDDFDE; -webkit-border-radius: 4px; }</style>');
     
-    //redefine ajax to use YQL as a proxy for cross domain urls
-    //snippet from: https://github.com/jamespadolsey/jQuery-Plugins/tree/master/cross-domain-ajax/
-    jQuery.rajax = (function(_ajax){
-
-        var protocol = location.protocol,
-            hostname = location.hostname,
-            exRegex = RegExp(protocol + '//' + hostname),
-            YQL = 'http' + (/^https/.test(protocol)?'s':'') + '://query.yahooapis.com/v1/public/yql?callback=?',
-            query = 'select * from html where url="{URL}" and xpath="*"';
-
-        function isExternal(url) {
-            return !exRegex.test(url) && /:\/\//.test(url);
-        }
-
-        return function(o) {
-
-            var url = o.url;
-
-            if ( /get/i.test(o.type) && !/json/i.test(o.dataType) && isExternal(url) ) {
-
-                // Manipulate options so that JSONP-x request is made to YQL
-
-                o.url = YQL;
-                o.dataType = 'json';
-
-                o.data = {
-                    q: query.replace(
-                        '{URL}',
-                        url + (o.data ?
-                            (/\?/.test(url) ? '&' : '?') + jQuery.param(o.data)
-                        : '')
-                    ),
-                    format: 'xml'
-                };
-
-                // Since it's a JSONP request
-                // complete === success
-                if (!o.success && o.complete) {
-                    o.success = o.complete;
-                    delete o.complete;
-                }
-
-                o.success = (function(_success){
-                    return function(data) {
-
-                        if (_success) {
-                            // Fake XHR callback.
-                            _success.call(this, {
-                                responseText: data.results[0]
-                                    // YQL screws with <script>s
-                                    // Get rid of them
-                                    .replace(/<script[^>]+?\/>|<script(.|\s)*?\/script>/gi, '')
-                            }, 'success');
-                        }
-
-                    };
-                })(o.success);
-
-            }
-
-            return _ajax.apply(this, arguments);
-
-        };
-
-    })(jQuery.ajax);
-    
-    // function to pull in any in-app purchases. Cross site request, so needs plugin above.
-    function showpurchases(appid, header) {
-        if(  !$(header).next('dl').children('.inapp').length  ) {
-            var targetref = 'http://itunes.apple.com/us/app/id' + appid;
-            jQuery.rajax(targetref, function(data) {
-                   var page = $(data.responseText);
-                   var purchases = page.find('.in-app-purchases').children('ol').children('li');
-                   var purchaselist = '';
-                   for(var i=0; i<purchases.length && i<3; i++) {
-                       purchaselist += $(purchases[i]).html() + '<br />';
-                   }
-                   if(purchaselist.length) { $(header).next('dl').prepend('<div class="inapp"><strong>Purchases:</strong><br/ >'+purchaselist+'</div>') }
-            });
-        }   
-    }
-    
+        $('head').append('<style>.imagebox {display:none} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px}</style>');
+        
     // Recursively get pages and add them to the list of apps until reaching the desired number
     function getNextPage(currpage, end) {
         $.ajax({
@@ -130,13 +50,54 @@ function thescript() {
         $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible}'); 
     }
     
+    function buildImages(imgurls, extension, el) {
+        for (var i=0; i<imgurls.length; i++) {
+            var s = imgurls[i];
+            if (s.substring(s.length-16)=='1024x1024-65.jpg'){
+                var url = s.substring(0,s.length-16) + extension;
+            }
+                
+            else {
+                var url = s.substring(0,s.length-3) + extension;
+            }
+            el.append('<img src="'+url+'" />');
+        }
+        return el;
+    }
+    
+    function toggleImages(el) {
+        if( !el.children('.imagebox').length ) {
+            var imgbox = $('<div class="imagebox"></div>');
+            el.append(imgbox);
+            var l = $('<div></div>');
+            console.log(el);
+            var id = el.attr('id').substring(4);
+            $.getJSON('http://itunes.apple.com/lookup?id='+id+'&callback=?', function(data){
+                var ssurls = (data['results'][0]['screenshotUrls']);
+                var ipadurls = (data['results'][0]['iPadScreenshotUrls']);
+                var ipadonlyurls = (data['results'][0]['ipadScreenshotUrls']);
+                console.log(ssurls);
+                console.log(ipadurls);
+                if(ssurls && ssurls.length){
+                     l.append('<h4>iPhone Screenshots</h4>');
+                     l = buildImages(ssurls, '320x480-75.jpg', l);
+                }
+                if(ipadurls && ipadurls.length) {
+                    l.append('<h4>iPad Screenshots</h4>');  
+                    l = buildImages(ipadurls, '320x480-75.jpg', l); 
+                } 
+                if(ipadonlyurls && ipadonlyurls.length) {
+                    l.append('<h4>iPad Screenshots</h4>')
+                    l = buildImages(ipadonlyurls, '480x480-75.jpg', l)
+                }              
+                imgbox.html(l.html());
+            });
+            
+        }
+        el.children('.imagebox').toggle();
+    }
+    
     function main() {
-        $('ul.appdetails').delegate('.muter','click',function(e){
-            var app = $(this).closest('li');
-            localStorage.setItem('mute' + app.attr('id'), 'true');
-            app.fadeOut();
-        });
-        
         (function( $ ) {
           $.fn.trimFat = function() {
               var minrating = localStorage.getItem('minrating');
@@ -151,7 +112,6 @@ function thescript() {
                   }
                   else {
                       var appid=item.attr('id').substring(4);
-                      showpurchases( appid, item.children('.hovertip')[0] );
                   }
               }
           };
@@ -159,6 +119,15 @@ function thescript() {
               this.find('h3.hovertip').after('<button class="muter" title="Don\'t show this app again"></button>');
           }
         })( jQuery );
+        
+        $('ul.appdetails').delegate('.muter','click',function(e){
+            var app = $(this).closest('li');
+            localStorage.setItem('mute' + app.attr('id'), 'true');
+            app.fadeOut();
+        });
+        $('ul.appdetails').delegate('li','click', function(e){toggleImages($(this));})
+        
+        
         
         localStorage.setItem('minrating',localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4);
         localStorage.setItem('minreviews',localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8);
@@ -181,7 +150,6 @@ function thescript() {
         next.attr('href', pagenum+5);
         if (pagenum > 5) prev.attr('href', pagenum-5);
     }  
-    
     main();
 }
 
