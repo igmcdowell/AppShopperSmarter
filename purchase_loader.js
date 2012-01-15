@@ -1,5 +1,6 @@
 old image fetcher
-
+//add formatting for inapp purchases.
+$('head').append('<style>.inapp { border: 1px solid #FBC7C6; padding: 4px; margin-bottom: 2px; background: #FDDFDE; -webkit-border-radius: 4px; }</style>');
 // function to pull in any in-app purchases. Cross site request, so needs plugin above.
 function showpurchases(appid, header) {
     if(  !$(header).next('dl').children('.inapp').length  ) {
