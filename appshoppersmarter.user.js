@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AppShopperSmarter
-// @description    Extends AppShopper to automatically filter out apps based on minimum number ratings and minimum average ratings. Also pulls in in-app purchases and loads five pages at a time, plus supports hiding apps indefinitely.
-// @version        1.2.0
+// @description    Extends AppShopper to display images from browse pages, plus automatically filter out apps based on minimum number ratings and minimum average ratings. Also loads five pages at a time, supports hiding apps indefinitely.
+// @version        1.3.0
 // @match http://appshopper.com/*
 // @exclude http://appshopper.com/search/*
 // ==/UserScript==
@@ -36,10 +36,7 @@ function thescript() {
     }
 
     function makeControls() {
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible}'); 
-        $('head').append('<style>.imagebox {display:none} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px}</style>');
-        $('head').append('<style>#lightbox {position:relative; width:100%; height:100%; display:none; z-index:20;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; z-index:101; display:inline-block;} #lightboxdismisser{z-index:102; position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #pictureholder img {border:15px solid white; outline:2px solid #888;}</style>'); 
-        $('head').append('<style>.imageexpander {font-size:80%; padding-left:10px; height:1.2em;background:url("http://appshopper.com/images/style/toolbar.png")}</style>'); 
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:relative; width:100%; height:100%; display:none; z-index:20;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; z-index:101; display:inline-block;} #lightboxdismisser{z-index:102; position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #pictureholder img {border:15px solid white; outline:2px solid #888;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; padding-left:10px;cursor:pointer; height:1.2em;background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px}.imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline}</style>'); 
         
         
         $('.toolbar').after('<div id="enhanced_filter"><h3>AppShopperSmarter Settings: </h3><label for="min_reviews">Minimum # Reviews:</label><input type="text" id="min_reviews" value="'+localStorage.getItem('minreviews')+'" /><label for="min_rating">Minimum Rating:</label><select id="min_rating"><option value="5">5 Stars</option><option value="4.5">4.5 Stars</option><option value="4">4 Stars</option><option value="3.5">3.5 Stars</option><option value="3">3 Stars</option><option value="2.5">2.5 Stars</option><option value="2">2 Stars</option><option value="1.5">1.5 Stars</option><option value="1">1 Stars</option><option value="0">None</option></select><button type="submit" id="changefilter">Filter</button></div>');
@@ -111,8 +108,10 @@ function thescript() {
         $('#lightbox').offset({ top: wtop, left:0});
         focalimg.load(function(){
             var imgwidth = $('#pictureholder img').width();
+            var imgheight = $('#pictureholder img').height();
             var leftoffset = (width - imgwidth)/2;
-            $('#pictureholder').offset({top: wtop + 30, left:leftoffset});
+            var topoffset = (height - imgheight)/2;
+            $('#pictureholder').offset({top: topoffset + wtop, left:leftoffset});
         });
  
     }
@@ -137,7 +136,7 @@ function thescript() {
           };
           $.fn.makeMuters = function() {
               this.find('h3.hovertip').after('<button class="muter" title="Don\'t show this app again"></button>');
-              $(this).append('<div class="imageexpander">Show/Hide Images</div>');
+              $(this).append('<div class="imageexpander"><a href="">Show/Hide Images</a></div>');
           }
         })( jQuery );
         
@@ -146,7 +145,7 @@ function thescript() {
             localStorage.setItem('mute' + app.attr('id'), 'true');
             app.fadeOut();
         });
-        $('ul.appdetails').delegate('.imageexpander','click', function(e){toggleImages($(this));})
+        $('ul.appdetails').delegate('.imageexpander','click', function(e){e.preventDefault(); toggleImages($(this));})
         $('ul.appdetails').delegate('.imagebox img', 'click', function(){
            lightbox($(this)); 
         });
