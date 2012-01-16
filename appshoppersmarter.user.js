@@ -75,8 +75,6 @@ function thescript() {
                 var ssurls = (data['results'][0]['screenshotUrls']);
                 var ipadurls = (data['results'][0]['iPadScreenshotUrls']);
                 var ipadonlyurls = (data['results'][0]['ipadScreenshotUrls']);
-                console.log(ssurls);
-                console.log(ipadurls);
                 if(ssurls && ssurls.length){
                      l.append('<h4>iPhone Screenshots</h4>');
                      l = buildImages(ssurls, '320x480-75.jpg', l);
@@ -110,10 +108,21 @@ function thescript() {
             var imgwidth = $('#pictureholder img').width();
             var imgheight = $('#pictureholder img').height();
             var leftoffset = (width - imgwidth)/2;
-            var topoffset = (height - imgheight)/2;
+            var topoffset = height > imgheight + 20 ? (height - imgheight)/2 : 30;
             $('#pictureholder').offset({top: topoffset + wtop, left:leftoffset});
         });
+        $(document).bind('keyup.lightControls', function(e){
+            e.preventDefault();
+           if (e.which == 27 ) {
+               $('#lightboxdismisser').click();
+           }
+        });
  
+    }
+    
+    function closeLightbox(){
+        $('#lightbox').fadeOut('fast');
+        $(document).unbind('lightControls');
     }
     
     function main() {
@@ -150,7 +159,7 @@ function thescript() {
            lightbox($(this)); 
         });
          $('body').delegate('#lightboxdismisser','click', function(){
-             $('#lightbox').fadeOut('fast')
+             closeLightbox();
         })
         
         
