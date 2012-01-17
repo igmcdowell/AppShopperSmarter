@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name           AppShopperSmarter
 // @description    Extends AppShopper to display images from browse pages, plus automatically filter out apps based on minimum number ratings and minimum average ratings. Also loads five pages at a time, supports hiding apps indefinitely.
-// @version        1.3.1
+// @version        1.4.0
 // @match http://appshopper.com/*
 // @exclude http://appshopper.com/search/*
 // ==/UserScript==
-
 
 function exec(fn) {
     var script = document.createElement('script');
@@ -16,7 +15,27 @@ function exec(fn) {
 }
 
 function thescript() {
-        
+    /* jQuery extensions */
+    (function( $ ) {
+      $.fn.trimFat = function() {
+          var minrating = localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4;
+          var minreviews = localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8;
+          for(var i=0; i<this.length; i++) {
+              var item = $(this[i]);
+              var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
+              var score=ratingInfo.substring(0,4);
+              var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
+              if (  localStorage.getItem('mute' + item.attr('id')) || (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
+                item.hide();
+              }
+          }
+      }
+      $.fn.makeMuters = function() {
+          this.find('h3.hovertip').after('<button class="muter" title="Don\'t show this app again"></button>');
+          $(this).append('<div class="imageexpander"><a href="">Show/Hide Images</a></div>');
+      }
+    })( jQuery );
+    
     // Recursively get pages and add them to the list of apps until reaching the desired number
     function getNextPage(currpage, end) {
         $.ajax({
@@ -24,20 +43,19 @@ function thescript() {
           success: function(data){
             var page = $(data);
             var apps = page.find('ul.appdetails li');
-            apps.trimFat(); 
-            apps.makeMuters();
+            apps.trimFat();
+            apps.makeMuters(); 
             $('ul.appdetails').append(apps);
-            if ( currpage < end ) {
-                currpage++;
-                getNextPage(currpage, end);
-            }
+            if ( currpage < end ) getNextPage(currpage +1, end);
           }
         });
     }
 
+    function addStyle() {
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin:0 10px 0 20px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 } #enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:absolute; width:100%; display:none; z-index:110;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; display:inline-block;} #lightboxdismisser{ position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #lightbox img {border:15px solid white; outline:2px solid #888; cursor:pointer;} #visiblebox {text-align:center;} #thumbs { margin-top:20px;} #thumbs img { border-width:5px; margin-left:10px;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; cursor:pointer; background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px} .imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;}</style>'); 
+    }
+    
     function makeControls() {
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:absolute; width:100%; height:100%; display:none; z-index:110;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; display:inline-block;} #lightboxdismisser{ position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #lightbox img {border:15px solid white; outline:2px solid #888; cursor:pointer;} #visiblebox {text-align:center;} #thumbs { margin-top:20px;} #thumbs img { border-width:5px; margin-left:10px;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; padding-left:10px;cursor:pointer; height:1.2em;background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px}.imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;}</style>'); 
-        
         $('.toolbar').after('<div id="enhanced_filter"><h3>AppShopperSmarter Settings: </h3><label for="min_reviews">Minimum # Reviews:</label><input type="text" id="min_reviews" value="'+localStorage.getItem('minreviews')+'" /><label for="min_rating">Minimum Rating:</label><select id="min_rating"><option value="5">5 Stars</option><option value="4.5">4.5 Stars</option><option value="4">4 Stars</option><option value="3.5">3.5 Stars</option><option value="3">3 Stars</option><option value="2.5">2.5 Stars</option><option value="2">2 Stars</option><option value="1.5">1.5 Stars</option><option value="1">1 Stars</option><option value="0">None</option></select><button type="submit" id="changefilter">Filter</button></div>');
         $('#enhanced_filter option[value="'+localStorage.getItem('minrating')+'"]').attr("selected", "selected");
         $('#changefilter').click(function(){
@@ -51,13 +69,7 @@ function thescript() {
     function buildImages(imgurls, extension, el) {
         for (var i=0; i<imgurls.length; i++) {
             var s = imgurls[i];
-            if (s.substring(s.length-16)=='1024x1024-65.jpg'){
-                var url = s.substring(0,s.length-16) + extension;
-            }
-                
-            else {
-                var url = s.substring(0,s.length-3) + extension;
-            }
+            var url = s.substring(s.length-16)=='1024x1024-65.jpg' ? s.substring(0,s.length-16) + extension : s.substring(0,s.length-3) + extension;
             el.append('<img src="'+url+'" />');
         }
         return el;
@@ -88,46 +100,36 @@ function thescript() {
                 }              
                 imgbox.html(l.html());
             });
-            
         }
         el.children('.imagebox').slideToggle('fast');
+    }
+    
+    function setImg(isrc) {
+        $('#focalimg').attr("src",isrc);
     }
     
     function lightbox(img) {
         $('#lightbox').delegate('#thumbs img', 'click', function(){
            setImg($(this).attr('src')); 
         });
-        $('#lightbox').delegate('#focalimg', 'click', function(){
-           $('#lightboxdismisser').click();
-        });
-        function setImg(isrc) {
-            $('#focalimg').attr("src",isrc);
-        }
-        var focalimg = img.clone();
+        $('#focalimg').click(function(){closeLightbox()});
         var thumbimgs = img.parent().children('img').clone();
         thumbimgs.css('width', '50px');
-        var thumbs = $('#thumbs');
-        thumbs.append(thumbimgs);
+        var thumbs = $('#thumbs').append(thumbimgs);
         var w = $(window);
-        setImg(focalimg.attr("src"));
+        setImg(img.attr("src"));
         $('#lightbox').height($(document).height());
         $('#lightbox').fadeIn();
-        focalimg.load(function(){
+        $('#focalimg').load(function(){
             var imgheight = $('#focalimg').outerHeight();
             var leftoffset = (w.width() - $('#focalimg').width())/2;
             var topoffset = w.height() > imgheight + 20 ? (w.height() - imgheight)/2 : 30;
             $('#visiblebox').offset({top: topoffset + w.scrollTop()});
-            var toffset = (w.width() - $('#thumbs').width())/2;
-            console.log(toffset);
         });
-        
         $(document).bind('keyup.lightControls', function(e){
             e.preventDefault();
-           if (e.which == 27 ) {
-               $('#lightboxdismisser').click();
-           }
+            if (e.which == 27 ) $('#lightboxdismisser').click();
         });
- 
     }
     
     function closeLightbox(){
@@ -136,53 +138,23 @@ function thescript() {
         $(document).unbind('lightControls');
     }
     
-    function main() {
-        (function( $ ) {
-          $.fn.trimFat = function() {
-              var minrating = localStorage.getItem('minrating');
-              var minreviews = localStorage.getItem('minreviews');
-              for(var i=0; i<this.length; i++) {
-                  var item = $(this[i]);
-                  var ratingInfo = $(item.children('dl').children('dt')[1]).next().text();
-                  var score=ratingInfo.substring(0,4);
-                  var ratingCount = ratingInfo.substring(6, ratingInfo.length-1);
-                  if (  localStorage.getItem('mute' + item.attr('id')) || (parseFloat(score) < minrating)  || (!parseFloat(score)) || (ratingCount<parseFloat(minreviews)) ) {
-                    item.hide();
-                  }
-                  else {
-                      var appid=item.attr('id').substring(4);
-                  }
-              }
-          };
-          $.fn.makeMuters = function() {
-              this.find('h3.hovertip').after('<button class="muter" title="Don\'t show this app again"></button>');
-              $(this).append('<div class="imageexpander"><a href="">Show/Hide Images</a></div>');
-          }
-        })( jQuery );
-        
+    function setWatchers() {
         $('ul.appdetails').delegate('.muter','click',function(e){
             var app = $(this).closest('li');
             localStorage.setItem('mute' + app.attr('id'), 'true');
             app.fadeOut();
         });
         $('ul.appdetails').delegate('.imageexpander','click', function(e){e.preventDefault(); toggleImages($(this));})
-        $('ul.appdetails').delegate('.imagebox img', 'click', function(){
-           lightbox($(this)); 
-        });
-         $('body').delegate('#lightboxdismisser','click', function(){
-             closeLightbox();
-        })
-        
-        
-        localStorage.setItem('minrating',localStorage.getItem("minrating") ? localStorage.getItem("minrating") : 4);
-        localStorage.setItem('minreviews',localStorage.getItem("minreviews") ? localStorage.getItem("minreviews") : 8);
+        $('ul.appdetails').delegate('.imagebox img', 'click', function(){ lightbox($(this));});
+        $('body').delegate('#lightboxdismisser','click', function(){ closeLightbox();});
+    }
+    
+    function main() {
+        setWatchers();
+        addStyle();
         makeControls();
         var pagelength = window.location.href.split("").reverse().join("").indexOf('/');
-        var pagenum = window.location.href.substring(window.location.href.length-pagelength);
-        pagenum = parseFloat(pagenum);
-        if (!pagelength) {
-            pagenum = 1
-        }
+        var pagenum = pagelength ? parseFloat(window.location.href.substring(window.location.href.length-pagelength)) : 1;
         $('ul.appdetails li').trimFat();
         $('ul.appdetails li').makeMuters();
         getNextPage(pagenum+1,pagenum+4);
@@ -200,7 +172,4 @@ function thescript() {
 
 (function(){
     exec(thescript);
-})();  
-
- 
- 
+})();
