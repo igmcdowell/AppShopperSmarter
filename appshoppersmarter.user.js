@@ -36,8 +36,7 @@ function thescript() {
     }
 
     function makeControls() {
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:relative; width:100%; height:100%; display:none; z-index:20;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; z-index:101; display:inline-block;} #lightboxdismisser{z-index:102; position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #pictureholder img {border:15px solid white; outline:2px solid #888;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; padding-left:10px;cursor:pointer; height:1.2em;background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px}.imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;}</style>'); 
-        
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin-left:20px; margin-right:10px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 }#enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:absolute; width:100%; height:100%; display:none; z-index:110;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; display:inline-block;} #lightboxdismisser{ position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #lightbox img {border:15px solid white; outline:2px solid #888; cursor:pointer;} #visiblebox {text-align:center;} #thumbs { margin-top:20px;} #thumbs img { border-width:5px; margin-left:10px;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; padding-left:10px;cursor:pointer; height:1.2em;background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px}.imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;}</style>'); 
         
         $('.toolbar').after('<div id="enhanced_filter"><h3>AppShopperSmarter Settings: </h3><label for="min_reviews">Minimum # Reviews:</label><input type="text" id="min_reviews" value="'+localStorage.getItem('minreviews')+'" /><label for="min_rating">Minimum Rating:</label><select id="min_rating"><option value="5">5 Stars</option><option value="4.5">4.5 Stars</option><option value="4">4 Stars</option><option value="3.5">3.5 Stars</option><option value="3">3 Stars</option><option value="2.5">2.5 Stars</option><option value="2">2 Stars</option><option value="1.5">1.5 Stars</option><option value="1">1 Stars</option><option value="0">None</option></select><button type="submit" id="changefilter">Filter</button></div>');
         $('#enhanced_filter option[value="'+localStorage.getItem('minrating')+'"]').attr("selected", "selected");
@@ -46,7 +45,7 @@ function thescript() {
             localStorage.setItem("minreviews", $('#min_reviews').attr('value'));
             window.location.reload();
         });
-        $('body').append('<div id="lightbox"><div id="blind"></div><div id="pictureholder"><span id="lightboxdismisser">X</span><img src="" /></div></div>');
+        $('body').prepend('<div id="lightbox"><div id="blind"></div><div id="visiblebox"><div id="pictureholder"><span id="lightboxdismisser">X</span><img id="focalimg" src="" /></div><div id="thumbs"></div></div></div>');
     }
     
     function buildImages(imgurls, extension, el) {
@@ -95,22 +94,33 @@ function thescript() {
     }
     
     function lightbox(img) {
-        var sibs = img.siblings('img');
-        var height = $(window).height();
-        var width = $(window).width();
-        var focalimg = img.clone();
-
-        var wtop = $(window).scrollTop();
-        $('#pictureholder img').attr("src",focalimg.attr("src"));
-        $('#lightbox').fadeIn();
-        $('#lightbox').offset({ top: wtop, left:0});
-        focalimg.load(function(){
-            var imgwidth = $('#pictureholder img').width();
-            var imgheight = $('#pictureholder img').height();
-            var leftoffset = (width - imgwidth)/2;
-            var topoffset = height > imgheight + 20 ? (height - imgheight)/2 : 30;
-            $('#pictureholder').offset({top: topoffset + wtop, left:leftoffset});
+        $('#lightbox').delegate('#thumbs img', 'click', function(){
+           setImg($(this).attr('src')); 
         });
+        $('#lightbox').delegate('#focalimg', 'click', function(){
+           $('#lightboxdismisser').click();
+        });
+        function setImg(isrc) {
+            $('#focalimg').attr("src",isrc);
+        }
+        var focalimg = img.clone();
+        var thumbimgs = img.parent().children('img').clone();
+        thumbimgs.css('width', '50px');
+        var thumbs = $('#thumbs');
+        thumbs.append(thumbimgs);
+        var w = $(window);
+        setImg(focalimg.attr("src"));
+        $('#lightbox').height($(document).height());
+        $('#lightbox').fadeIn();
+        focalimg.load(function(){
+            var imgheight = $('#focalimg').outerHeight();
+            var leftoffset = (w.width() - $('#focalimg').width())/2;
+            var topoffset = w.height() > imgheight + 20 ? (w.height() - imgheight)/2 : 30;
+            $('#visiblebox').offset({top: topoffset + w.scrollTop()});
+            var toffset = (w.width() - $('#thumbs').width())/2;
+            console.log(toffset);
+        });
+        
         $(document).bind('keyup.lightControls', function(e){
             e.preventDefault();
            if (e.which == 27 ) {
@@ -122,6 +132,7 @@ function thescript() {
     
     function closeLightbox(){
         $('#lightbox').fadeOut('fast');
+        $('#thumbs').html('');
         $(document).unbind('lightControls');
     }
     
