@@ -52,7 +52,7 @@ function thescript() {
     }
 
     function addStyle() {
-        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin:0 10px 0 20px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 } #enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {position:absolute; width:100%; display:none; z-index:110;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; display:inline-block;} #lightboxdismisser{ position:absolute; top:-25px;right:0px; cursor:pointer; background-color: #CCC; padding: 1px 4px; border: 1px solid #AAA;} #lightbox img {border:15px solid white; outline:2px solid #888; cursor:pointer;} #visiblebox {text-align:center;} #thumbs { margin-top:20px;} #thumbs img { border-width:5px; margin-left:10px;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; cursor:pointer; background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px} .imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;}</style>'); 
+        $('head').append('<style type="text/css">#enhanced_filter h3{font-size:.9em; color:#fff; margin: 0 0 0 10px} #enhanced_filter{background:url("http://appshopper.com/images/style/toolbar.png") left 378px; padding:2px;} #enhanced_filter label{margin:0 10px 0 20px; font-size:.8em; font-weight:bold; color:#fff;text-shadow:1px 1px 1px #888 } #enhanced_filter input, label, select, h3 {display:inline-block} #enhanced_filter input {width:2em} .muter{ position: absolute; top: -8px; right: -2px; background: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/images/ui-icons_222222_256x240.png) NO-REPEAT -80px -128px #fff; border-radius: 9px; -moz-border-radius: 9px; -webkit-box-shadow: 1px 1px 0px 1px #ccc; -moz-box-shadow: 1px 1px 0px 1px #ccc; cursor: pointer; width: 18px; height: 18px; border: 1px solid #666;} .muter:hover{background-color:#ccc} .content ul.appdetails li{overflow:visible} .imagebox {display:none; margin:0 0 15px 10px; border:1px solid #b3dcfe;} .content ul.appdetails li .imagebox img{width:100px; display:inline-block; position:relative; margin:10px 10px 10px 0; cursor:pointer} .imagebox h4 {margin:5px 10px} #lightbox {-webkit-user-select: none; -moz-user-select: none; position:absolute; width:100%; display:none; z-index:110;} #blind {background-color:#fff; opacity:.9; width:100%; height:100%;} #pictureholder {position:relative; overflow:hidden; display:inline-block;} #lightboxdismisser{ position:absolute;right:53px; cursor:pointer; background-color: #CCC; padding: 2px 4px 0px 5px;} #lightbox img {position:relative; margin-top:28px; border:15px solid white; outline:2px solid #888; cursor:pointer;} #visiblebox {text-align:center;} #thumbs { margin-top:20px;} #thumbs img { border-width:5px; margin:10px;} .imageexpander {font-size:80%; margin:-10px 0 0 10px; cursor:pointer; background:url("http://appshopper.com/images/style/toolbar.png")  left 240px; padding:2px 10px} .imageexpander a {text-decoration: none; color: #1E455E;} .imageexpander a:hover{text-decoration:underline} .spinner{height: 16px; width: 16px !important; display: block !important; margin: 10px auto !important;} .gradient{cursor:pointer; background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#aaa)); background: -moz-linear-gradient(top,  #ddd,  #aaa); border:1px solid #aaa; border-radius:4px;-moz-border-radius:4px;} .gradient:hover {background: -webkit-gradient(linear, left top, left bottom, from(#999), to(#bbb));background: -moz-linear-gradient(top,  #999,  #bbb);} .cycler{margin: 10px; padding: 2px; position: relative; top: -5px; font-size: 80%; display: inline-block; width: 55px; cursor: pointer;}  .active{box-shadow: 0px 0px 10px 3px #49a8f3; -moz-box-shadow:0px 0px 10px 3px #49a8f3; } </style>'); 
     }
     
     function makeControls() {
@@ -63,7 +63,18 @@ function thescript() {
             localStorage.setItem("minreviews", $('#min_reviews').attr('value'));
             window.location.reload();
         });
-        $('body').prepend('<div id="lightbox"><div id="blind"></div><div id="visiblebox"><div id="pictureholder"><span id="lightboxdismisser">X</span><img id="focalimg" src="" /></div><div id="thumbs"></div></div></div>');
+        $('body').prepend('<div id="lightbox"><div id="blind"></div><div id="visiblebox"><div id="pictureholder"><span id="lightboxdismisser" class="gradient">X</span><span id="prev" class="gradient cycler">Previous</span><img id="focalimg" src="" /><span id="next" class="gradient cycler">Next</span></div><div id="thumbs"></div></div></div>');
+        $('#prev').click(function(){
+            var p = $('.active').prev();
+            p.length ? p.click() : $('.active').siblings().last().click();
+        });
+        $('#next').click(function(){
+            var n = $('.active').next();
+            n.length ? n.click() : $('.active').siblings().first().click();
+        });
+        $('#lightbox').delegate('#thumbs img', 'click', function(){
+           setImg($(this)); 
+        });
     }
     
     function buildImages(imgurls, extension, el) {
@@ -104,20 +115,52 @@ function thescript() {
         el.children('.imagebox').slideToggle('fast');
     }
     
-    function setImg(isrc) {
-        $('#focalimg').attr("src",isrc);
+    function setImg(t, left) {
+        isrc = t.attr('src');
+        function slideLeft(f) {
+            f.animate({"left": "-500px"}, "fast", function(){f.attr("src",isrc); f.css('left', '500px'); f.animate({"left": "0px"}, "fast");});
+        }
+        function slideRight(f) {
+           f.animate({"left": "500px"}, "fast", function(){f.attr("src",isrc); f.css('left', '-500px'); f.animate({"left": "0px"}, "fast");}); 
+        }
+        var oldp = t.siblings('.active').index();
+        var newp = t.index();
+        var dist = 0;
+        var f = $('#focalimg');
+        
+        if (oldp > newp) {
+            dist = oldp - newp;
+            if (dist > t.siblings().length/2.0) {
+                slideRight(f);
+            }
+            else {
+                slideLeft(f);
+            }
+        }
+        else {
+            dist = newp - oldp;
+            if (dist > t.siblings().length/2.0) {
+                slideLeft(f);
+            }
+            else {
+                slideRight(f);
+            }
+        }
+        t.siblings('.active').removeClass('active');
+        t.addClass('active');
+
+
+        //left ? slideLeft(f) : slideRight(f);
     }
     
     function lightbox(img) {
-        $('#lightbox').delegate('#thumbs img', 'click', function(){
-           setImg($(this).attr('src')); 
-        });
         $('#focalimg').click(function(){closeLightbox()});
         var thumbimgs = img.parent().children('img').clone();
         thumbimgs.css('width', '50px');
+        thumbimgs.filter('[src='+img.attr('src')+']').addClass('active');
         var thumbs = $('#thumbs').append(thumbimgs);
         var w = $(window);
-        setImg(img.attr("src"));
+        setImg(thumbimgs.filter('.active'));
         $('#lightbox').height($(document).height());
         $('#lightbox').fadeIn();
         $('#focalimg').load(function(){
