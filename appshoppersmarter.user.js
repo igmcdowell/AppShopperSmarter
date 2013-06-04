@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           AppShopperSmarter
 // @description    Extends AppShopper to display images from browse pages, plus automatically filter out apps based on minimum number ratings and minimum average ratings. Also loads five pages at a time, supports hiding apps indefinitely.
-// @version        1.5.1
+// @version        1.5.2
 // @match http://appshopper.com/*
 // @exclude http://appshopper.com/search/*
 // ==/UserScript==
@@ -80,7 +80,7 @@ function thescript() {
     function buildImages(imgurls, extension, el) {
         for (var i=0; i<imgurls.length; i++) {
             var s = imgurls[i];
-            var url = s.substring(s.length-16)=='1024x1024-65.jpg' ? s.substring(0,s.length-16) + extension : s.substring(0,s.length-3) + extension;
+			var url = s.replace(/[0-9]+x[0-9]+-[0-9]+\.jpg/, extension)
             el.append('<img src="'+url+'" />');
         }
         return el;
